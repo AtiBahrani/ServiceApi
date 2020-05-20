@@ -15,7 +15,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "1193";
+    private static final String PASSWORD = "machintosh";
 
     public DatabasePersistence() {
         try {
@@ -45,7 +45,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         String unit = "INSERT INTO SEP4_Source.Unit(unitName) VALUES (?);";
 
         db.update(sensor, data.getSensorName());
-        db.update(measurement, data.getValue(), data.getTimestamp());
+        db.update(measurement, data.getValue(), new Timestamp(data.getTimestamp()));
         db.update(unit, data.getUnitType());
 
 
@@ -73,7 +73,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //query to get measurementId to put in SensorMeasurement
         String measurementId = "SELECT measurement_ID FROM SEP4_Source.Measurement WHERE value =? and timestamp=?;";
 
-        ArrayList<Object[]> mIds = db.query(measurementId, data.getValue(), data.getTimestamp());
+        ArrayList<Object[]> mIds = db.query(measurementId, data.getValue(), new Timestamp(data.getTimestamp()));
         mID = Integer.parseInt(mIds.get(0)[0].toString());
         String sensorMeasurements = "INSERT INTO SEP4_Source.SensorMeasurement(measurement_ID ,sensor_ID)VALUES (?,?);";
 
@@ -120,8 +120,9 @@ public class DatabasePersistence implements DatabaseAdaptor {
             double value = Double.valueOf(str).doubleValue();
             String ts = String.valueOf(array[3]);
             Timestamp timestamp = Timestamp.valueOf(ts);
+            long datetime = timestamp.getTime();
            //create the sensor object
-            Sensor sensorInfo = new Sensor(String.valueOf(array[1]), String.valueOf(array[0]),value,timestamp);
+            Sensor sensorInfo = new Sensor(String.valueOf(array[1]), String.valueOf(array[0]),value,datetime);
             list.add(sensorInfo);
         }
         return list;

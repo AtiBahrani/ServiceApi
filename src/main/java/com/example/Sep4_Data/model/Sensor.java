@@ -6,19 +6,17 @@ public class Sensor {
     private String sensorName;
     private String unitType;
     private double value;
-    private Timestamp timestamp;
-
-    public Sensor() {
-    }
+    private long timestamp;
 
     public Sensor(String sensorName, String unitType, double value) {
         this.sensorName = sensorName;
         this.unitType = unitType;
         this.value = value;
-        timestamp= new Timestamp(System.currentTimeMillis());
+        Timestamp tis = new Timestamp(System.currentTimeMillis());
+        timestamp= tis.getTime();
     }
 
-    public Sensor(String sensorName, String unitType, double value, Timestamp timestamp) {
+    public Sensor(String sensorName, String unitType, double value, long timestamp) {
         this.sensorName = sensorName;
         this.unitType = unitType;
         this.value = value;
@@ -49,11 +47,11 @@ public class Sensor {
         this.value = value;
     }
 
-    public Timestamp getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

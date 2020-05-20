@@ -19,7 +19,7 @@ public class DatabasePersistenceTest {
     public void addDataTest() throws SQLException {
         // Timestamp timestamp= new Timestamp(System.currentTimeMillis());
         //Measurement mes = new Measurement("centigrade", 23);
-        Sensor sensor = new Sensor("temperature", "c",23);
+        Sensor sensor = new Sensor("co2", "ppm",49);
         db.addSensorData(sensor);
 
     }
@@ -28,5 +28,4 @@ public class DatabasePersistenceTest {
     public void getData() throws SQLException {
         System.out.println(db.getData());
     }
-
 }
