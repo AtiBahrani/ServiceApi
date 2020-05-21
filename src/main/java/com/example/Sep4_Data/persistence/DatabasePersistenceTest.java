@@ -17,8 +17,6 @@ public class DatabasePersistenceTest {
 
     @Test
     public void addDataTest() throws SQLException {
-        // Timestamp timestamp= new Timestamp(System.currentTimeMillis());
-        //Measurement mes = new Measurement("centigrade", 23);
         Sensor sensor = new Sensor("co2", "ppm",49);
         db.addSensorData(sensor);
 
