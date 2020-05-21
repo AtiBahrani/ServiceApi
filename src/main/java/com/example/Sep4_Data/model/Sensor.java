@@ -1,5 +1,4 @@
 package com.example.Sep4_Data.model;
-
 import java.sql.Timestamp;
 
 public class Sensor {
