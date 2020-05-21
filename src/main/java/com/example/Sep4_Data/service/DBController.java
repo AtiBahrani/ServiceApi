@@ -16,5 +16,4 @@ public class DBController {
     public List<Sensor> index() throws SQLException {
         return db.getData();
     }
-
 }

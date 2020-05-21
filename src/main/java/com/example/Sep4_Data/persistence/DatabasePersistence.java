@@ -1,9 +1,6 @@
 package com.example.Sep4_Data.persistence;
-
-
 import com.example.Sep4_Data.model.Sensor;
 import utility.persistence.MyDatabase;
-
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -47,7 +44,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(sensor, data.getSensorName());
         db.update(measurement, data.getValue(), new Timestamp(data.getTimestamp()));
         db.update(unit, data.getUnitType());
-
 
         //key look up for getting the id in order to put to the in between relations
         String sensorTypeId = "SELECT sensorType_ID FROM SEP4_Source.SensorType WHERE sensorName =?;";
