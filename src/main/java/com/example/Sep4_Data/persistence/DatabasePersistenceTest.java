@@ -17,7 +17,7 @@ public class DatabasePersistenceTest {
 
     @Test
     public void addDataTest() throws SQLException {
-        Sensor sensor = new Sensor("co2", "ppm",49);
+        Sensor sensor = new Sensor("co2", "ppm",49,15901370);
         db.addSensorData(sensor);
 
     }
