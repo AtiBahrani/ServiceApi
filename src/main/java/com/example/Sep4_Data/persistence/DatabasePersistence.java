@@ -79,7 +79,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         String unitId = "SELECT unit_ID FROM SEP4_Source.Unit WHERE unitName =?;";
 
         ArrayList<Object[]> uIds = db.query(unitId, data.getUnitType());
-        uID = Integer.parseInt(uIds.get(0)[0].toString());
+        uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
 
         String sensorUnits = "INSERT INTO SEP4_Source.SensorUnit(unit_ID,sensor_ID )VALUES (?,?);";
 

@@ -18,6 +18,7 @@ public class DBController {
     DatabaseAdaptor db=new DatabasePersistence();
     @GetMapping("/sensor")
     public List<Sensor> index() throws SQLException {
+        System.out.println("Data sent to client.");
         return db.getData();
     }
     @PostMapping("/sensor")
@@ -30,5 +31,6 @@ public class DBController {
             e.printStackTrace();
         }
         db.addSensorData(sensor);
+        System.out.println("Sensor info added to database for " + sensor.getSensorName());
     }
 }

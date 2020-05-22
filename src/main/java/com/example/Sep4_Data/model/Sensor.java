@@ -8,6 +8,7 @@ public class Sensor {
     private String unitType;
     private double value;
     private long timestamp;
+
     @JsonCreator
     public Sensor(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") long timestamp) {
         this.sensorName = sensorName;
