@@ -1,5 +1,7 @@
 package com.example.Sep4_Data.model;
-import java.sql.Timestamp;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Sensor {
     private String sensorName;
@@ -7,15 +9,8 @@ public class Sensor {
     private double value;
     private long timestamp;
 
-    public Sensor(String sensorName, String unitType, double value) {
-        this.sensorName = sensorName;
-        this.unitType = unitType;
-        this.value = value;
-        Timestamp tis = new Timestamp(System.currentTimeMillis());
-        timestamp= tis.getTime();
-    }
-
-    public Sensor(String sensorName, String unitType, double value, long timestamp) {
+    @JsonCreator
+    public Sensor(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") long timestamp) {
         this.sensorName = sensorName;
         this.unitType = unitType;
         this.value = value;
