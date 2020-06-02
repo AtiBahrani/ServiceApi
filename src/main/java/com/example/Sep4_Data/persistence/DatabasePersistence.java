@@ -146,7 +146,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.D_ID_LOOKUP);
         db.update(DatabaseQueries.T_ID_LOOKUP);
         db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
-        db.update(DatabaseQueries.LAST_UPDATE, sensor.getTimestamp());
+        db.update(DatabaseQueries.LAST_UPDATE,(Timestamp) new Timestamp(sensor.getTimestamp()));
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);

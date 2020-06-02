@@ -1,7 +1,6 @@
 package com.example.Sep4_Data.utility;
 
 
-
 public class DatabaseQueries {
     /*INSERT INTO SOURCE DATABASE*/
     public static final String INSERT_INTO_SENSORTYPE = "INSERT INTO SensorType(sensorName) VALUES (?);";
@@ -38,13 +37,13 @@ public class DatabaseQueries {
 
     //incremental load to DW
     public static final String INSERT_INTO_MEASURE_FACT_STAGE = "INSERT INTO temp_measure_fact( room_id, sensor_id, \"_value\",_timestamp)" +
-            "SELECT room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp" +
+            "   SELECT room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp " +
             "FROM  room join roomhasmeasurement " +
-            "on room.room_id = roomhasmeasurement.room_id join measurement " +
-            "on roomhasmeasurement.measurement_id = measurement.measurement_id " +
-            "join sensormeasurement on measurement.measurement_id = sensormeasurement.measurement_id" +
-            "join sensor on sensormeasurement.sensor_id = sensor.sensor_id " +
-            "where measurement.timestamp >(SELECT lastUpdate FROM last_updated_dw);";
+            "  on room.room_id = roomhasmeasurement.room_id join measurement " +
+            "        on roomhasmeasurement.measurement_id = measurement.measurement_id " +
+            "    join sensormeasurement on measurement.measurement_id = sensormeasurement.measurement_id" +
+            " join sensor on sensormeasurement.sensor_id = sensor.sensor_id " +
+            "   where measurement.timestamp >(SELECT last_updated_dw.lastUpdate FROM last_updated_dw);";
 
     // stage dimension
     public static final String INSERT_INTO_SENSOR_DIM_STAGE = "INSERT INTO sensor_dim_stage(sensor_ID,sensorName,unitName)" +
@@ -56,11 +55,11 @@ public class DatabaseQueries {
             "SELECT room_ID,roomType FROM room;";
 
     //POPULATE THE DATA WAREHOUSE WITH CHANGES ///check the queries to get date from lastupdated table
-    public static final String INSERT_INTO_SENSOR_DIM_DW = "INSERT INTO sensor_dim_dw(sensor_id, sensorname,validFrom, validTo)" +
-            "  SELECT sensor_dim_stage.sensor_id,sensor_dim_stage.sensorname,(select last_updated.lastUpdate from Last_updated),'9999-12-31'" +
+    public static final String INSERT_INTO_SENSOR_DIM_DW = "INSERT INTO sensor_dim_dw(sensor_id, sensorname,unitname,validFrom, validTo)" +
+            "  SELECT sensor_dim_stage.sensor_id,sensor_dim_stage.sensorname,sensor_dim_stage.unitname,(select last_updated_dw.lastUpdate from Last_updated_dw),'9999-12-31'" +
             "    FROM sensor_dim_stage;";
     public static final String INSERT_INTO_ROOM_DIM_DW = "INSERT INTO room_dim_dw (room_id, roomtype,validFrom,validTo)" +
-            "  SELECT room_dim_stage.room_id, room_dim_stage.roomtype,(select last_updated.lastUpdate from Last_updated),'9999-12-31'" +
+            "  SELECT room_dim_stage.room_id, room_dim_stage.roomtype,(select last_updated_dw.lastUpdate from Last_updated_dw),'9999-12-31'" +
             "    FROM room_dim_stage;";
     //KEY LOOK-UP
     public static final String R_ID_LOOKUP = "UPDATE temp_measure_fact" +
@@ -79,23 +78,22 @@ public class DatabaseQueries {
             " WHERE temp_measure_fact._timestamp:: time in(select t.time_format::time));";
 
     // populate warehouse fact table
-    public static final String INSERT_INTO_MEASUREMENT_FACT_DW = "INSERT INTO measurement_fact_dw (r_id, s_id, t_id, d_id, \"value\",\"timpstamp\")" +
+    public static final String INSERT_INTO_MEASUREMENT_FACT_DW = "INSERT INTO measurement_fact_dw (r_id, s_id, t_id, d_id, \"value\")" +
             "  SELECT temp_measure_fact.r_id" +
             "  ,temp_measure_fact.s_id" +
             "  ,temp_measure_fact.t_id" +
             "  ,temp_measure_fact.d_id" +
             "  ,temp_measure_fact._value" +
-            "  ,temp_measure_fact._timestamp" +
             "    FROM temp_measure_fact;";
     //update the last_updated_dw table after each incremental load
     public static final String LAST_UPDATE = "UPDATE  last_updated_dw SET lastUpdate=?;";
     //delete data from staging area after each load
     public static final String DELETE_FROM_TEMP_FACT = "DELETE FROM temp_measure_fact CASCADE;";
-    public static final String DELETE_FROM_SENSOR_DIM_STAGE="DELETE FROM sensor_dim_stage CASCADE;";
-    public static final String DELETE_FROM_ROOM_DIM_STAGE= "DELETE FROM room_dim_stage CASCADE;";
+    public static final String DELETE_FROM_SENSOR_DIM_STAGE = "DELETE FROM sensor_dim_stage CASCADE;";
+    public static final String DELETE_FROM_ROOM_DIM_STAGE = "DELETE FROM room_dim_stage CASCADE;";
 
     /* get the last value as default value for the parameters */
-    public static final String GET_DEFAULT_VALUE_FOR_IOT="SELECT sensor_dim_dw.sensorname,measurement_fact_dw.\"_value\" from " +
+    public static final String GET_DEFAULT_VALUE_FOR_IOT = "SELECT sensor_dim_dw.sensorname,measurement_fact_dw.\"_value\" from " +
             "sensor_dim_dw join measurement_fact_dw on sensor_dim_dw.s_id= measurement_fact_dw.s_id order by " +
             "measurement_fact_dw._timestamp desc limit 3;";
 
