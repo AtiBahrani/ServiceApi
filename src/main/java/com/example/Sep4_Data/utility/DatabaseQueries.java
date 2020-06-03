@@ -14,9 +14,9 @@ public class DatabaseQueries {
     public static final String INSERT_INTO_ACTUATOR = "INSERT INTO Actuator (actuatorName) VALUES (?);";
     public static final String INSERT_INTO_ACTOATORSTATE = "INSERT INTO ActuatorState(actuator_ID,state) VALUES (?,?);";
     public static final String INSERT_INTO_ROOMACTUATORSTATE = "INSERT INTO RoomActuatorState(room_ID,state_ID) VALUES (?,?);";
-    public static final String INSERT_INTO_PROFILE = "INSERT INTO Profile(name,co2_value,humidity_value,temperature_value) VALUES (?,?,?);";
-    public static final String INSERT_INTO_STATE = "INSERT INTO ProfileState (profile_ID,state,timestamp) VALUES (?,?,?);";
-    public static final String INSERT_INTO_PROFILEDEFAULTVALUESTATE = "INSERT INTO ProfileDefaultValueState(room_ID,state_ID) VALUES (?,?);";
+    public static final String INSERT_INTO_PROFILE = "INSERT INTO Profile(name,co2_value,humidity_value,temperature_value) VALUES (?,?,?,?);";
+    public static final String INSERT_INTO_STATE = "INSERT INTO State (profile_ID,state,timestamp) VALUES (?,?,?);";
+    public static final String INSERT_INTO_PROFILEDEFAULTVALUESTATE = "INSERT INTO ProfileStateDefaultValue(room_ID,state_ID) VALUES (?,?);";
     //KEY LOOP-UP TO GET IDs in source database
     public static final String GET_SENSORTYPE_ID = "SELECT sensorType_ID FROM SensorType WHERE sensorName =?;";
     public static final String GET_SENSOR_ID = "SELECT sensor_ID FROM Sensor join SensorType ON " +
@@ -25,8 +25,8 @@ public class DatabaseQueries {
     public static final String GET_UNIT_ID = "SELECT unit_ID FROM Unit WHERE unitName =?;";
     public static final String GET_ACTUATOR_ID = "SELECT actuator_ID FROM Actuator WHERE actuatorName=?;";
     public static final String GET_ACTUATORSTATE_ID = "SELECT state_ID FROM ActuatorSate where actuator_ID =?;";
-    public static final String GET_PROFILE_ID = "SELECT profile_ID FROM Profile WHERE name=?;";
-    public static final String GET_STATE_ID_FROM_STATE = "SELECT state_ID FROM State WHERE profile_ID=? AND state='enable' AND timestamp=?;";
+    public static final String GET_PROFILE_ID = "SELECT profile_ID FROM Profile WHERE name=? order by profile_ID desc limit 1;";
+    public static final String GET_STATE_ID_FROM_STATE = "SELECT state_ID FROM State WHERE profile_ID=?  AND timestamp=? order by state_ID desc limit 1;";
 
     /*dw*/
     public static final String GET_SENSOR_FROM_DW = "SELECT  sensorName,unitName,measurement_fact_dw.value,date_dim_dw.calendardate ,time_dim_dw.time_format " +

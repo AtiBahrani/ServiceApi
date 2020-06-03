@@ -1,5 +1,6 @@
 package com.example.Sep4_Data.persistence;
 
+import com.example.Sep4_Data.model.DefaultValue;
 import com.example.Sep4_Data.model.Sensor;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +20,8 @@ public class DatabasePersistenceTest {
 
     @Test
     public void addDataTest() throws SQLException {
-        Timestamp ts = new Timestamp(System.currentTimeMillis());
-        long time= ts.getTime();
-        Sensor sensor = new Sensor("humidity", "percent",65,time);
+
+        Sensor sensor = new Sensor("humidity", "percent",65,15901370);
         db.addSensorData(sensor);
 
     }
@@ -29,5 +29,14 @@ public class DatabasePersistenceTest {
     @Test
     public void getData() throws SQLException {
         System.out.println(db.getData());
+    }
+
+    @Test
+    public void addDefaultValue()throws SQLException{
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        DefaultValue defaultValue= new DefaultValue(ts,"enable","Penne",1200,87,75);
+        db.addDefaultValue(defaultValue);
+
+
     }
 }

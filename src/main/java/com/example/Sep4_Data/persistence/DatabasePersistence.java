@@ -1,9 +1,11 @@
 package com.example.Sep4_Data.persistence;
 
+import com.example.Sep4_Data.model.DefaultValue;
 import com.example.Sep4_Data.model.EmDefaultValue;
 import com.example.Sep4_Data.model.Sensor;
 import com.example.Sep4_Data.model.SensorWithSDate;
 import com.example.Sep4_Data.utility.DatabaseQueries;
+
 import utility.persistence.MyDatabase;
 
 import java.sql.SQLException;
@@ -69,6 +71,23 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //update the data warehouse after each update
         updateDW(data);
     }
+
+    public synchronized void addDefaultValue(DefaultValue defaultValue)throws SQLException{
+        int psID,pID=0;
+        int rID=1; //representing room_ID assuming there is only one room having id=1
+        db.update(DatabaseQueries.INSERT_INTO_PROFILE,defaultValue.getParameterType(),defaultValue.getCo2(),defaultValue.getHumidity(),defaultValue.getTemperature());
+        ArrayList<Object[]> pIds = db.query(DatabaseQueries.GET_PROFILE_ID,defaultValue.getParameterType());
+         pID= Integer.parseInt(pIds.get(pIds.size()-1)[0].toString());
+        System.out.println(pID);
+         db.update(DatabaseQueries.INSERT_INTO_STATE,pID,defaultValue.getState(),defaultValue.getTimestamp());
+        ArrayList<Object[]> psIds =db.query(DatabaseQueries.GET_STATE_ID_FROM_STATE,pID,defaultValue.getTimestamp());
+        psID=Integer.parseInt(psIds.get(psIds.size()-1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_PROFILEDEFAULTVALUESTATE,rID,psID);
+
+
+
+    }
+
 
     /**
      * The method is loading all the data for the sensor which are name, unit, value
@@ -167,4 +186,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
     }
+
+
 }
