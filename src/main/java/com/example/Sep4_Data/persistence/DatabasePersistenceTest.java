@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 
 public class DatabasePersistenceTest {
@@ -12,12 +13,15 @@ public class DatabasePersistenceTest {
 
     @Before
     public void setUp() throws ClassNotFoundException {
-        this.db = new DatabasePersistence();
+       this.db = new DatabasePersistence();
     }
+
 
     @Test
     public void addDataTest() throws SQLException {
-        Sensor sensor = new Sensor("co2", "ppm",49,15901370);
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        long time= ts.getTime();
+        Sensor sensor = new Sensor("humidity", "percent",65,time);
         db.addSensorData(sensor);
 
     }

@@ -1,18 +1,26 @@
 package com.example.Sep4_Data.persistence;
+
+import com.example.Sep4_Data.model.EmDefaultValue;
 import com.example.Sep4_Data.model.Sensor;
+import com.example.Sep4_Data.model.SensorWithSDate;
+import com.example.Sep4_Data.utility.DatabaseQueries;
 import utility.persistence.MyDatabase;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DatabasePersistence implements DatabaseAdaptor {
     private MyDatabase db;
 
     private static final String DRIVER = "org.postgresql.Driver";
-    private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "machintosh";
+    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
+    private static final String USER = "lwavwwgi";
+    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
 
     public DatabasePersistence() {
         try {
@@ -21,6 +29,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            System.out.println("connection error");
         }
     }
 
@@ -30,113 +39,132 @@ public class DatabasePersistence implements DatabaseAdaptor {
      * SensorType, Unit and Measurement tables and makes a query to get the ids from these tables
      * first inserts sensorType_ID as FK into Sensor table then makes a query to get the sensor_ID
      * and with the other ids inserts them into SensorMeasurement and SensorUnit tables as FK.
+     * and update the data warehouse
      *
      * @param data (sensorName, value, timestamp,unit)
      * @throws SQLException
      */
     @Override
     public synchronized void addSensorData(Sensor data) throws SQLException {
-        //insert data in three tables sensorType, measurement and unit
-        String sensor = "INSERT INTO SEP4_Source.SensorType(sensorName) VALUES (?);";
-        String measurement = "INSERT INTO SEP4_Source.Measurement(value,timestamp) VALUES (?,?);";
-        String unit = "INSERT INTO SEP4_Source.Unit(unitName) VALUES (?);";
-
-        db.update(sensor, data.getSensorName());
-        db.update(measurement, data.getValue(), new Timestamp(data.getTimestamp()));
-        db.update(unit, data.getUnitType());
-
-        //key look up for getting the id in order to put to the in between relations
-        String sensorTypeId = "SELECT sensorType_ID FROM SEP4_Source.SensorType WHERE sensorName =?;";
-
         int sID, mID, uID = 0;
-
-        //query to get the sensorType_ID and inserting it to sensor table
-
-        ArrayList<Object[]> sIds = db.query(sensorTypeId, data.getSensorName());
-        sID = Integer.parseInt(sIds.get(0)[0].toString());
-        String sensorTable = "INSERT INTO SEP4_Source.Sensor(sensorType_ID )VALUES (?);";
-        db.update(sensorTable, sID);
-
+        //insert data in three tables sensorType, measurement and unit
+        db.update(DatabaseQueries.INSERT_INTO_SENSORTYPE, data.getSensorName());
+        db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT, data.getValue(), new Timestamp(data.getTimestamp()));
+        db.update(DatabaseQueries.INSERT_INTO_UNIT, data.getUnitType());
+        ArrayList<Object[]> sIds = db.query(DatabaseQueries.GET_SENSORTYPE_ID, data.getSensorName());
+        sID = Integer.parseInt(sIds.get(sIds.size() - 1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_SENSOR, sID);
         //get sensorId
         int sensor_ID = 0;
-        String sensorId = "SELECT sensor_ID FROM SEP4_Source.Sensor join SEP4_Source.SensorType ON " +
-                "SensorType.sensorType_ID =Sensor.sensorType_ID WHERE sensorName =?;";
-
-        ArrayList<Object[]> senID = db.query(sensorId, data.getSensorName());
+        ArrayList<Object[]> senID = db.query(DatabaseQueries.GET_SENSOR_ID, data.getSensorName());
         sensor_ID = Integer.parseInt(senID.get(0)[0].toString());
-
-
         //query to get measurementId to put in SensorMeasurement
-        String measurementId = "SELECT measurement_ID FROM SEP4_Source.Measurement WHERE value =? and timestamp=?;";
-
-        ArrayList<Object[]> mIds = db.query(measurementId, data.getValue(), new Timestamp(data.getTimestamp()));
-        mID = Integer.parseInt(mIds.get(0)[0].toString());
-        String sensorMeasurements = "INSERT INTO SEP4_Source.SensorMeasurement(measurement_ID ,sensor_ID)VALUES (?,?);";
-
-        db.update(sensorMeasurements, mID, sensor_ID);
-
+        ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID, data.getValue(), new Timestamp(data.getTimestamp()));
+        mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
         // get unit_ID
-        String unitId = "SELECT unit_ID FROM SEP4_Source.Unit WHERE unitName =?;";
-
-        ArrayList<Object[]> uIds = db.query(unitId, data.getUnitType());
+        ArrayList<Object[]> uIds = db.query(DatabaseQueries.GET_UNIT_ID, data.getUnitType());
         uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
-
-        String sensorUnits = "INSERT INTO SEP4_Source.SensorUnit(unit_ID,sensor_ID )VALUES (?,?);";
-
-
-        db.update(sensorUnits, uID, sensor_ID);
-
+        db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, uID, sensor_ID);
+        //update the data warehouse after each update
+        updateDW(data);
     }
 
     /**
-     * The method is loading all the data for the sensor from Sensor, Unit and Measurement tables
-     * creates a list with these information
+     * The method is loading all the data for the sensor which are name, unit, value
+     * and timestamp from the data warehouse
+     * and creates a list with these information
      *
      * @return list
      * @throws SQLException
      */
     @Override
-    public List<Sensor> getData() throws SQLException {
-        //join between 6 tables to get the data for sensor object
-        String dataSql = "SELECT DISTINCT unitName ,sensorName,Measurement.value , Measurement.timestamp " +
-                "FROM SEP4_Source.Unit JOIN SEP4_Source.SensorUnit ON SEP4_Source.Unit.unit_ID = SEP4_Source.SensorUnit.unit_ID " +
-                "JOIN SEP4_Source.Sensor ON SEP4_Source.SensorUnit.sensor_ID = Sensor.sensor_ID " +
-                "JOIN SEP4_Source.SensorType ON SEP4_Source.Sensor.sensorType_ID = SensorType.sensorType_ID " +
-                "INNER JOIN SEP4_Source.SensorMeasurement s ON Sensor.sensor_ID = s.sensor_ID " +
-                "INNER JOIN SEP4_Source.Measurement ON s.measurement_ID = Measurement.measurement_ID;";
+    public List<SensorWithSDate> getData() throws SQLException {
 
-        List<Sensor> list = new ArrayList<>();
+        List<SensorWithSDate> list = new ArrayList<>();
         //select query
-        ArrayList<Object[]> dataList = db.query(dataSql);
+        ArrayList<Object[]> dataList = db.query(DatabaseQueries.GET_SENSOR_FROM_DW);
 
         for (int i = 0; i < dataList.size(); i++) {
             Object[] array = dataList.get(i);
             //instantiate measurement by casting the object to double type and timestamp
             String str = String.valueOf(array[2]);
-            double value = Double.valueOf(str).doubleValue();
-            String ts = String.valueOf(array[3]);
+            double value = Double.parseDouble(str);
+            String ts = (array[3]) + " " + (array[4]);
             Timestamp timestamp = Timestamp.valueOf(ts);
-            long datetime = timestamp.getTime();
-           //create the sensor object
-            Sensor sensorInfo = new Sensor(String.valueOf(array[1]), String.valueOf(array[0]),value,datetime);
+            String datetime = timestamp.getDay() + "-" + timestamp.getMonth() + "-" + timestamp.getYear() + " " + timestamp.getHours() + ":" + timestamp.getMinutes();
+            //create the sensor object
+            SensorWithSDate sensorInfo = new SensorWithSDate(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
             list.add(sensorInfo);
         }
         return list;
+    }
+    @Override
+    public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException {
+        List<SensorWithSDate> all = new ArrayList<>(getData());
+        List<SensorWithSDate> filtered = new ArrayList<>();
+        Date datefrom = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(from);
+        Date dateto = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(to);
 
+        for (int i = 0;i<all.size();i++) {
+            Date date = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(all.get(i).getTimestamp());
+            if (date.before(dateto) && date.after(datefrom) ){
+                filtered.add(all.get(i));
+            }
+        }
+        return filtered;
     }
 
-   /* @Override
-    public void setDefaultValue(DefaultValue defaultValue) {
-
-    }
+    /**
+     * The method is getting sensorName with its value from the data warehouse showing
+     * the last values added in the warehouse representing the default value from the sensors
+     *
+     * @return list (sensor name with values showing the default
+     * value that has received from the device)
+     * @throws SQLException
+     */
 
     @Override
-    public void addRoom(Room room) {
-
+    public List<EmDefaultValue> getDefaultValueEm() throws SQLException {
+        List<EmDefaultValue> list = new ArrayList<>();
+        //select query
+        ArrayList<Object[]> dvList = db.query(DatabaseQueries.GET_DEFAULT_VALUE_FOR_IOT);
+        for (int i = 0; i < dvList.size(); i++) {
+            Object[] array = dvList.get(i);
+            String v = String.valueOf(array[1]);
+            double value = Double.valueOf(v).doubleValue();
+            EmDefaultValue info = new EmDefaultValue(String.valueOf(array[0]), value);
+            list.add(info);
+        }
+        return list;
     }
 
-    @Override
-    public void addProfile(Profile profile) {
-
-    }*/
+    /**
+     * this is private method for the ETL process and incremental load of the data warehouse
+     * the order is to extract data into staging area
+     * populating the data warehouse dimensions
+     * key look up
+     * populating the fact table in the data warehouse
+     * and update the last_updated table with the last time load was done
+     * and deleting data from the staging area to be ready for the next load.
+     *
+     * @param sensor
+     * @throws SQLException
+     */
+    private void updateDW(Sensor sensor) throws SQLException {
+        db.update(DatabaseQueries.INSERT_INTO_MEASURE_FACT_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_DW);
+        db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_DW);
+        db.update(DatabaseQueries.R_ID_LOOKUP);
+        db.update(DatabaseQueries.S_ID_LOOKUP);
+        db.update(DatabaseQueries.D_ID_LOOKUP);
+        db.update(DatabaseQueries.T_ID_LOOKUP);
+        db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
+        db.update(DatabaseQueries.LAST_UPDATE,(Timestamp) new Timestamp(sensor.getTimestamp()));
+        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+        db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
+        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+    }
 }
