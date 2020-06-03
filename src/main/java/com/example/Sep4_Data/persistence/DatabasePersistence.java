@@ -72,18 +72,18 @@ public class DatabasePersistence implements DatabaseAdaptor {
         updateDW(data);
     }
 
-    public synchronized void addDefaultValue(DefaultValue defaultValue)throws SQLException{
-        int psID,pID=0;
-        int rID=1; //representing room_ID assuming there is only one room having id=1
-        db.update(DatabaseQueries.INSERT_INTO_PROFILE,defaultValue.getParameterType(),defaultValue.getCo2(),defaultValue.getHumidity(),defaultValue.getTemperature());
-        ArrayList<Object[]> pIds = db.query(DatabaseQueries.GET_PROFILE_ID,defaultValue.getParameterType());
-         pID= Integer.parseInt(pIds.get(pIds.size()-1)[0].toString());
+    @Override
+    public synchronized void addDefaultValue(DefaultValue defaultValue) throws SQLException {
+        int psID, pID = 0;
+        int rID = 1; //representing room_ID assuming there is only one room having id=1
+        db.update(DatabaseQueries.INSERT_INTO_PROFILE, defaultValue.getParameterType(), defaultValue.getCo2(), defaultValue.getHumidity(), defaultValue.getTemperature());
+        ArrayList<Object[]> pIds = db.query(DatabaseQueries.GET_PROFILE_ID, defaultValue.getParameterType());
+        pID = Integer.parseInt(pIds.get(pIds.size() - 1)[0].toString());
         System.out.println(pID);
-         db.update(DatabaseQueries.INSERT_INTO_STATE,pID,defaultValue.getState(),defaultValue.getTimestamp());
-        ArrayList<Object[]> psIds =db.query(DatabaseQueries.GET_STATE_ID_FROM_STATE,pID,defaultValue.getTimestamp());
-        psID=Integer.parseInt(psIds.get(psIds.size()-1)[0].toString());
-        db.update(DatabaseQueries.INSERT_INTO_PROFILEDEFAULTVALUESTATE,rID,psID);
-
+        db.update(DatabaseQueries.INSERT_INTO_STATE, pID, defaultValue.getState(), defaultValue.getTimestamp());
+        ArrayList<Object[]> psIds = db.query(DatabaseQueries.GET_STATE_ID_FROM_STATE, pID, defaultValue.getTimestamp());
+        psID = Integer.parseInt(psIds.get(psIds.size() - 1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_PROFILEDEFAULTVALUESTATE, rID, psID);
 
 
     }
@@ -118,6 +118,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         }
         return list;
     }
+
     @Override
     public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException {
         List<SensorWithSDate> all = new ArrayList<>(getData());
@@ -125,9 +126,9 @@ public class DatabasePersistence implements DatabaseAdaptor {
         Date datefrom = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(from);
         Date dateto = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(to);
 
-        for (int i = 0;i<all.size();i++) {
+        for (int i = 0; i < all.size(); i++) {
             Date date = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(all.get(i).getTimestamp());
-            if (date.before(dateto) && date.after(datefrom) ){
+            if (date.before(dateto) && date.after(datefrom)) {
                 filtered.add(all.get(i));
             }
         }
@@ -181,7 +182,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.D_ID_LOOKUP);
         db.update(DatabaseQueries.T_ID_LOOKUP);
         db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
-        db.update(DatabaseQueries.LAST_UPDATE,(Timestamp) new Timestamp(sensor.getTimestamp()));
+        db.update(DatabaseQueries.LAST_UPDATE, (Timestamp) new Timestamp(sensor.getTimestamp()));
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);

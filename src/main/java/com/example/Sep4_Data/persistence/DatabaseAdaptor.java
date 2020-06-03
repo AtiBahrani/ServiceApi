@@ -1,5 +1,6 @@
 package com.example.Sep4_Data.persistence;
 
+import com.example.Sep4_Data.model.DefaultValue;
 import com.example.Sep4_Data.model.EmDefaultValue;
 import com.example.Sep4_Data.model.Sensor;
 import com.example.Sep4_Data.model.SensorWithSDate;
@@ -13,7 +14,7 @@ public interface DatabaseAdaptor {
     void addSensorData(Sensor data) throws SQLException;
 
 
-
+     void addDefaultValue(DefaultValue defaultValue)throws SQLException;
     List<SensorWithSDate> getData() throws SQLException;
     public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException;
 
