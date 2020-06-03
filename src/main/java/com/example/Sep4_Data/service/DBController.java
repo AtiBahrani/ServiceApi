@@ -25,7 +25,7 @@ public class DBController {
         return db.getData();
     }
 
-    @GetMapping("/parameters")
+    @GetMapping("/parametersFiltered")
     public List<SensorWithSDate> getFilteredDate(String timestampFrom, String timestampTo) throws SQLException, ParseException {
         System.out.println("Data sent to client.");
         return db.getDataFromTo(timestampFrom, timestampTo);
