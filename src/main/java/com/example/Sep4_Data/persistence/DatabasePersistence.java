@@ -1,14 +1,17 @@
 package com.example.Sep4_Data.persistence;
 
-import com.example.Sep4_Data.model.DefaultValue;
 import com.example.Sep4_Data.model.EmDefaultValue;
 import com.example.Sep4_Data.model.Sensor;
+import com.example.Sep4_Data.model.SensorWithSDate;
 import com.example.Sep4_Data.utility.DatabaseQueries;
 import utility.persistence.MyDatabase;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DatabasePersistence implements DatabaseAdaptor {
@@ -76,9 +79,9 @@ public class DatabasePersistence implements DatabaseAdaptor {
      * @throws SQLException
      */
     @Override
-    public List<Sensor> getData() throws SQLException {
+    public List<SensorWithSDate> getData() throws SQLException {
 
-        List<Sensor> list = new ArrayList<>();
+        List<SensorWithSDate> list = new ArrayList<>();
         //select query
         ArrayList<Object[]> dataList = db.query(DatabaseQueries.GET_SENSOR_FROM_DW);
 
@@ -86,17 +89,30 @@ public class DatabasePersistence implements DatabaseAdaptor {
             Object[] array = dataList.get(i);
             //instantiate measurement by casting the object to double type and timestamp
             String str = String.valueOf(array[2]);
-            double value = Double.valueOf(str).doubleValue();
+            double value = Double.parseDouble(str);
             String ts = (array[3]) + " " + (array[4]);
             Timestamp timestamp = Timestamp.valueOf(ts);
-            long datetime = timestamp.getTime();
+            String datetime = timestamp.getDay() + "-" + timestamp.getMonth() + "-" + timestamp.getYear() + " " + timestamp.getHours() + ":" + timestamp.getMinutes();
             //create the sensor object
-            Sensor sensorInfo = new Sensor(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
+            SensorWithSDate sensorInfo = new SensorWithSDate(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
             list.add(sensorInfo);
         }
         return list;
+    }
+    @Override
+    public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException {
+        List<SensorWithSDate> all = new ArrayList<>(getData());
+        List<SensorWithSDate> filtered = new ArrayList<>();
+        Date datefrom = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(from);
+        Date dateto = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(to);
 
-
+        for (int i = 0;i<all.size();i++) {
+            Date date = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(all.get(i).getTimestamp());
+            if (date.before(dateto) && date.after(datefrom) ){
+                filtered.add(all.get(i));
+            }
+        }
+        return filtered;
     }
 
     /**
@@ -120,7 +136,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
             EmDefaultValue info = new EmDefaultValue(String.valueOf(array[0]), value);
             list.add(info);
         }
-        return null;
+        return list;
     }
 
     /**
