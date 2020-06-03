@@ -21,6 +21,7 @@ public class DBController {
         System.out.println("Data sent to client.");
         return db.getData();
     }
+
     @PostMapping("/sensor")
     public void sendData(@RequestBody String data) throws SQLException {
         ObjectMapper mapper = new ObjectMapper();

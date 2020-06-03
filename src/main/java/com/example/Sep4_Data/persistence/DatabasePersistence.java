@@ -98,7 +98,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
     @Override
     public List<Sensor> getData() throws SQLException {
         //join between 6 tables to get the data for sensor object
-        String dataSql = "SELECT  unitName ,sensorName,Measurement.value , Measurement.timestamp " +
+        String dataSql = "SELECT DISTINCT unitName ,sensorName,Measurement.value , Measurement.timestamp " +
                 "FROM SEP4_Source.Unit JOIN SEP4_Source.SensorUnit ON SEP4_Source.Unit.unit_ID = SEP4_Source.SensorUnit.unit_ID " +
                 "JOIN SEP4_Source.Sensor ON SEP4_Source.SensorUnit.sensor_ID = Sensor.sensor_ID " +
                 "JOIN SEP4_Source.SensorType ON SEP4_Source.Sensor.sensorType_ID = SensorType.sensorType_ID " +
