@@ -63,13 +63,14 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //query to get measurementId to put in SensorMeasurement
         ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID, data.getValue(), new Timestamp(data.getTimestamp()));
         mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT,1,mID);
         db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
         // get unit_ID
         ArrayList<Object[]> uIds = db.query(DatabaseQueries.GET_UNIT_ID, data.getUnitType());
         uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
         db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, uID, sensor_ID);
         //update the data warehouse after each update
-        updateDW(data);
+      // updateDW(data);
     }
 
     @Override
@@ -173,6 +174,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
      */
     private void updateDW(Sensor sensor) throws SQLException {
         db.update(DatabaseQueries.INSERT_INTO_MEASURE_FACT_STAGE);
+
         db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_STAGE);
         db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_DW);
@@ -183,7 +185,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.T_ID_LOOKUP);
         db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
         db.update(DatabaseQueries.LAST_UPDATE, (Timestamp) new Timestamp(sensor.getTimestamp()));
-        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+       db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
     }

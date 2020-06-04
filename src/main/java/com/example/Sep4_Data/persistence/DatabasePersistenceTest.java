@@ -14,14 +14,15 @@ public class DatabasePersistenceTest {
 
     @Before
     public void setUp() throws ClassNotFoundException {
-       this.db = new DatabasePersistence();
+        this.db = new DatabasePersistence();
     }
 
 
     @Test
     public void addDataTest() throws SQLException {
-
-        Sensor sensor = new Sensor("humidity", "percent",65,15901370);
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        long time= (long)ts.getTime();
+        Sensor sensor = new Sensor("temperature", "celsius", 63, time);
         db.addSensorData(sensor);
 
     }
@@ -32,9 +33,9 @@ public class DatabasePersistenceTest {
     }
 
     @Test
-    public void addDefaultValue()throws SQLException{
+    public void addDefaultValue() throws SQLException {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
-        DefaultValue defaultValue= new DefaultValue(ts,"enable","Penne",1200,87,75);
+        DefaultValue defaultValue = new DefaultValue(ts, "enable", "Penne", 1200, 87, 75);
         db.addDefaultValue(defaultValue);
 
 

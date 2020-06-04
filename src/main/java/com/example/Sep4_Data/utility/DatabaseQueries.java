@@ -63,11 +63,11 @@ public class DatabaseQueries {
             "    FROM room_dim_stage;";
     //KEY LOOK-UP
     public static final String R_ID_LOOKUP = "UPDATE temp_measure_fact" +
-            " SET R_ID=( SELECT R_ID FROM room_dim_dw WHERE room_ID = temp_measure_fact.room_id );";
+            " SET R_ID=( SELECT R_ID FROM room_dim_dw r WHERE r.room_ID = temp_measure_fact.room_id and validTo='9999-12-31' );";
 
     public static final String S_ID_LOOKUP = "UPDATE temp_measure_fact" +
-            " SET S_ID =( SELECT S_ID FROM sensor_dim_dw" +
-            " WHERE sensor_dim_dw.sensor_id=temp_measure_fact.sensor_id );";
+            " SET S_ID =( SELECT S_ID FROM sensor_dim_dw " +
+            " WHERE sensor_dim_dw.sensor_id=temp_measure_fact.sensor_id and validTo='9999-12-31');";
 
     public static final String D_ID_LOOKUP = " UPDATE  temp_measure_fact" +
             " SET D_ID =( SELECT D_ID  FROM date_dim_dw d " +
@@ -75,8 +75,7 @@ public class DatabaseQueries {
 
     public static final String T_ID_LOOKUP = "UPDATE temp_measure_fact" +
             " SET T_ID = (SELECT T_ID FROM time_dim_dw t" +
-            " WHERE temp_measure_fact._timestamp:: time in(select t.time_format::time));";
-
+            " WHERE temp_measure_fact._timestamp::time in(select t.time_format::time));";
     // populate warehouse fact table
     public static final String INSERT_INTO_MEASUREMENT_FACT_DW = "INSERT INTO measurement_fact_dw (r_id, s_id, t_id, d_id, \"value\")" +
             "  SELECT temp_measure_fact.r_id" +
