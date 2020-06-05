@@ -19,10 +19,14 @@ import java.util.List;
 public class DatabasePersistence implements DatabaseAdaptor {
     private MyDatabase db;
 
+    //    private static final String DRIVER = "org.postgresql.Driver";
+//    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
+//    private static final String USER = "lwavwwgi";
+//    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
     private static final String DRIVER = "org.postgresql.Driver";
-    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
-    private static final String USER = "lwavwwgi";
-    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
+    private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
+    private static final String USER = "postgres";
+    private static final String PASSWORD = "1193";
 
     public DatabasePersistence() {
         try {
@@ -63,29 +67,35 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //query to get measurementId to put in SensorMeasurement
         ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID, data.getValue(), new Timestamp(data.getTimestamp()));
         mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
-        db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT,1,mID);
+        db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT, 1, mID);
         db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
         // get unit_ID
         ArrayList<Object[]> uIds = db.query(DatabaseQueries.GET_UNIT_ID, data.getUnitType());
         uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
         db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, uID, sensor_ID);
         //update the data warehouse after each update
-      // updateDW(data);
+        updateDW(data);
     }
 
-    @Override
-    public synchronized void addDefaultValue(DefaultValue defaultValue) throws SQLException {
-        int psID, pID = 0;
-        int rID = 1; //representing room_ID assuming there is only one room having id=1
-        db.update(DatabaseQueries.INSERT_INTO_PROFILE, defaultValue.getParameterType(), defaultValue.getCo2(), defaultValue.getHumidity(), defaultValue.getTemperature());
-        ArrayList<Object[]> pIds = db.query(DatabaseQueries.GET_PROFILE_ID, defaultValue.getParameterType());
-        pID = Integer.parseInt(pIds.get(pIds.size() - 1)[0].toString());
-        System.out.println(pID);
-        db.update(DatabaseQueries.INSERT_INTO_STATE, pID, defaultValue.getState(), defaultValue.getTimestamp());
-        ArrayList<Object[]> psIds = db.query(DatabaseQueries.GET_STATE_ID_FROM_STATE, pID, defaultValue.getTimestamp());
-        psID = Integer.parseInt(psIds.get(psIds.size() - 1)[0].toString());
-        db.update(DatabaseQueries.INSERT_INTO_PROFILEDEFAULTVALUESTATE, rID, psID);
 
+    /**
+     * This method gets three values for each environmental parameters as the average value which comes
+     * from the android application with a timestamp. these values with the timestamp will be stored
+     * in the source database as report which later can be retrieved and  sent to the front end.
+     *
+     * @param report (average values with timestamp)
+     * @throws SQLException
+     */
+    @Override
+    public synchronized void addReport(Report report) throws SQLException {
+        int reportId = 0;
+        Timestamp timestamp = Timestamp.valueOf(report.getTimestamp());
+
+        int rID = 1; //representing room_ID assuming there is only one room having id=1
+        db.update(DatabaseQueries.INSERT_INTO_REPORT, report.getAvgCo2(), report.getAvgHumidity(), report.getAvgTemp(), timestamp);
+        ArrayList<Object[]> reportIds = db.query(DatabaseQueries.GET_REPORT_ID, timestamp);
+        reportId = Integer.parseInt(reportIds.get(reportIds.size() - 1)[0].toString());
+        db.update(DatabaseQueries.INSERT_INTO_ROOMREPORT, rID, reportId);
 
     }
 
@@ -136,6 +146,11 @@ public class DatabasePersistence implements DatabaseAdaptor {
         return filtered;
     }
 
+//    @Override
+//    public List<Report> getReport() throws SQLException {
+//        return null;
+//    }
+
     /**
      * The method is getting sensorName with its value from the data warehouse showing
      * the last values added in the warehouse representing the default value from the sensors
@@ -174,7 +189,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
      */
     private void updateDW(Sensor sensor) throws SQLException {
         db.update(DatabaseQueries.INSERT_INTO_MEASURE_FACT_STAGE);
-
         db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_STAGE);
         db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_DW);
@@ -185,7 +199,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.T_ID_LOOKUP);
         db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
         db.update(DatabaseQueries.LAST_UPDATE, (Timestamp) new Timestamp(sensor.getTimestamp()));
-       db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
     }
