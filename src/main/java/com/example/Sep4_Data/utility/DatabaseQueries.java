@@ -1,6 +1,5 @@
 package com.example.Sep4_Data.utility;
 
-
 public class DatabaseQueries {
     /*INSERT INTO SOURCE DATABASE*/
     public static final String INSERT_INTO_SENSORTYPE = "INSERT INTO SensorType(sensorName) VALUES (?);";
@@ -93,5 +92,4 @@ public class DatabaseQueries {
     public static final String GET_DEFAULT_VALUE_FOR_IOT = "SELECT sensor_dim_dw.sensorname,measurement_fact_dw.value from " +
             "sensor_dim_dw join measurement_fact_dw on sensor_dim_dw.s_id= measurement_fact_dw.s_id join time_dim_dw " +
             "on measurement_fact_dw.t_id= time_dim_dw.t_id order by measurement_fact_dw.t_id desc limit 3;";
-
 }
