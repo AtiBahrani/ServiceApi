@@ -1,11 +1,7 @@
 package com.example.Sep4_Data.persistence;
 
-import com.example.Sep4_Data.model.DefaultValue;
-import com.example.Sep4_Data.model.EmDefaultValue;
-import com.example.Sep4_Data.model.Sensor;
-import com.example.Sep4_Data.model.SensorWithSDate;
+import com.example.Sep4_Data.model.*;
 import com.example.Sep4_Data.utility.DatabaseQueries;
-
 import utility.persistence.MyDatabase;
 
 import java.sql.SQLException;
@@ -18,11 +14,10 @@ import java.util.List;
 
 public class DatabasePersistence implements DatabaseAdaptor {
     private MyDatabase db;
-
-    //    private static final String DRIVER = "org.postgresql.Driver";
-//    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
-//    private static final String USER = "lwavwwgi";
-//    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
+    //private static final String DRIVER = "org.postgresql.Driver";
+    //private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
+    //private static final String USER = "lwavwwgi";
+    //private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
@@ -32,13 +27,11 @@ public class DatabasePersistence implements DatabaseAdaptor {
         try {
             this.db = new MyDatabase(DRIVER, URL, USER, PASSWORD);
             System.out.println("connecting...");
-
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             System.out.println("connection error");
         }
     }
-
 
     /**
      * This method is passing the relevant data for sensor and insert into the
@@ -77,7 +70,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
         updateDW(data);
     }
 
-
     /**
      * This method gets three values for each environmental parameters as the average value which comes
      * from the android application with a timestamp. these values with the timestamp will be stored
@@ -92,13 +84,11 @@ public class DatabasePersistence implements DatabaseAdaptor {
         Timestamp timestamp = Timestamp.valueOf(report.getTimestamp());
 
         int rID = 1; //representing room_ID assuming there is only one room having id=1
-        db.update(DatabaseQueries.INSERT_INTO_REPORT, report.getAvgCo2(), report.getAvgHumidity(), report.getAvgTemp(), timestamp);
+        db.update(DatabaseQueries.INSERT_INTO_REPORT, report.getCo2_value(), report.getHumidity_value(), report.getTemperature_value(), timestamp);
         ArrayList<Object[]> reportIds = db.query(DatabaseQueries.GET_REPORT_ID, timestamp);
         reportId = Integer.parseInt(reportIds.get(reportIds.size() - 1)[0].toString());
         db.update(DatabaseQueries.INSERT_INTO_ROOMREPORT, rID, reportId);
-
     }
-
 
     /**
      * The method is loading all the data for the sensor which are name, unit, value
@@ -110,7 +100,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
      */
     @Override
     public List<SensorWithSDate> getData() throws SQLException {
-
         List<SensorWithSDate> list = new ArrayList<>();
         //select query
         ArrayList<Object[]> dataList = db.query(DatabaseQueries.GET_SENSOR_FROM_DW);
@@ -159,7 +148,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
      * value that has received from the device)
      * @throws SQLException
      */
-
     @Override
     public List<EmDefaultValue> getDefaultValueEm() throws SQLException {
         List<EmDefaultValue> list = new ArrayList<>();
@@ -203,6 +191,4 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
     }
-
-
 }

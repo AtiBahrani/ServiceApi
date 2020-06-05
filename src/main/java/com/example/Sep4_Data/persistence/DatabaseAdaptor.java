@@ -1,9 +1,6 @@
 package com.example.Sep4_Data.persistence;
 
-import com.example.Sep4_Data.model.DefaultValue;
-import com.example.Sep4_Data.model.EmDefaultValue;
-import com.example.Sep4_Data.model.Sensor;
-import com.example.Sep4_Data.model.SensorWithSDate;
+import com.example.Sep4_Data.model.*;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -13,13 +10,15 @@ public interface DatabaseAdaptor {
 
     void addSensorData(Sensor data) throws SQLException;
 
+    void addReport(Report report) throws SQLException;
 
-    void addReport(Report report)throws SQLException;
     List<SensorWithSDate> getData() throws SQLException;
-    public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException;
 
-   // List<Report> getReport ()throws SQLException;
-    List<EmDefaultValue> getDefaultValueEm()throws SQLException; //replace the name and type of the method with the code you have
+    List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException;
+
+    //List<Report> getReport() throws SQLException;
+    List<EmDefaultValue> getDefaultValueEm() throws SQLException; //replace the name and type of the method with the code you have
+
     /*void addRoom(Room room);
     void addProfile(Profile profile);*/
 }

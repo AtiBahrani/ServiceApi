@@ -1,6 +1,7 @@
 package com.example.Sep4_Data.service;
 
 import com.example.Sep4_Data.model.EmDefaultValue;
+import com.example.Sep4_Data.model.Report;
 import com.example.Sep4_Data.model.Sensor;
 import com.example.Sep4_Data.model.SensorWithSDate;
 import com.example.Sep4_Data.persistence.DatabaseAdaptor;
@@ -18,15 +19,16 @@ import java.util.List;
 
 @RestController
 public class DBController {
-    DatabaseAdaptor db=new DatabasePersistence();
+    DatabaseAdaptor db = new DatabasePersistence();
+
     @GetMapping("/parameters")
-    public List<SensorWithSDate> index() throws SQLException {
+    public List<SensorWithSDate> getSensorInfo() throws SQLException {
         System.out.println("Data sent to client.");
         return db.getData();
     }
 
     @GetMapping("/parametersFiltered")
-    public List<SensorWithSDate> getFilteredDate(String timestampFrom, String timestampTo) throws SQLException, ParseException {
+    public List<SensorWithSDate> getFilteredDateSensorInfo(String timestampFrom, String timestampTo) throws SQLException, ParseException {
         System.out.println("Data sent to client.");
         return db.getDataFromTo(timestampFrom, timestampTo);
     }
@@ -50,4 +52,8 @@ public class DBController {
         System.out.println("Sensor info added to database for " + sensor.getSensorName());
     }
 
+    @PostMapping("/report")
+    public void addReport(@RequestBody Report report) throws SQLException {
+        db.addReport(report);
+    }
 }
