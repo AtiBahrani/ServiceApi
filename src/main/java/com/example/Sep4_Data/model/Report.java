@@ -44,4 +44,14 @@ public class Report {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "co2_value=" + co2_value +
+                ", humidity_value=" + humidity_value +
+                ", temperature_value=" + temperature_value +
+                ", timestamp='" + timestamp + '\'' +
+                '}';
+    }
 }

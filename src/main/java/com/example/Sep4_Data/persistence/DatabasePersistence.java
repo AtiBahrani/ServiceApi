@@ -65,7 +65,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         // get unit_ID
         ArrayList<Object[]> uIds = db.query(DatabaseQueries.GET_UNIT_ID, data.getUnitType());
         uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
-        db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, uID, sensor_ID);
+        db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, sensor_ID, uID);
         //update the data warehouse after each update
         updateDW(data);
     }
@@ -135,10 +135,38 @@ public class DatabasePersistence implements DatabaseAdaptor {
         return filtered;
     }
 
-//    @Override
-//    public List<Report> getReport() throws SQLException {
-//        return null;
-//    }
+    /**
+     * This method is getting the average values for the three environmental parameters
+     * on the requested date from the source database due to lack of time reports are not added to
+     * the data warehouse and currently it is being stored in and retrieved from the source database.
+     *
+     * @param timestamp
+     * @return list of reports made with average values for a specific timestamp
+     * @throws SQLException
+     */
+    @Override
+    public List<Report> getReport(String timestamp) throws SQLException {
+        Timestamp t = Timestamp.valueOf(timestamp);
+
+        List<Report> list = new ArrayList<>();
+        //select query
+        ArrayList<Object[]> reports = db.query(DatabaseQueries.GET_REPORT_FOR_DATE, t);
+
+        for (int i = 0; i < reports.size(); i++) {
+            Object[] array = reports.get(i);
+            String co2 = String.valueOf(array[0]);
+            double avgCo2 = Double.parseDouble(co2);
+            String humidity = String.valueOf(array[1]);
+            double avgHumidity = Double.parseDouble(humidity);
+            String temperature = String.valueOf(array[2]);
+            double avgTemp = Double.parseDouble(temperature);
+            String time = (array[3] + "");
+
+            Report report = new Report(avgCo2, avgHumidity, avgTemp, time);
+            list.add(report);
+        }
+        return list;
+    }
 
     /**
      * The method is getting sensorName with its value from the data warehouse showing
@@ -189,6 +217,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.LAST_UPDATE, (Timestamp) new Timestamp(sensor.getTimestamp()));
         db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
-        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+        db.update(DatabaseQueries.DELETE_FROM_ROOM_DIM_STAGE);
     }
 }

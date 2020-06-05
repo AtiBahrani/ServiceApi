@@ -7,7 +7,7 @@ public class DatabaseQueries {
     public static final String INSERT_INTO_UNIT = "INSERT INTO Unit(unitName) VALUES (?);";
     public static final String INSERT_INTO_SENSOR = "INSERT INTO Sensor(sensorType_ID )VALUES (?);";
     public static final String INSERT_INTO_SENSORMEASUREMENT = "INSERT INTO SensorMeasurement(measurement_ID ,sensor_ID)VALUES (?,?);";
-    public static final String INSERT_INTO_SENSORUNIT = "INSERT INTO SensorUnit(unit_ID,sensor_ID )VALUES (?,?);";
+    public static final String INSERT_INTO_SENSORUNIT = "INSERT INTO SensorUnit(sensor_ID,unit_ID )VALUES (?,?);";
     public static final String INSERT_INTO_ROOM = "INSERT INTO Room (roomType) VALUES (?);";
     public static final String INSERT_INTO_ROOMHASMEASUREMENT = "INSERT INTO RoomHasMeasurement (room_ID,measurement_ID) VALUES(?,?);";
     public static final String INSERT_INTO_ACTUATOR = "INSERT INTO Actuator (actuatorName) VALUES (?);";
@@ -25,7 +25,9 @@ public class DatabaseQueries {
     public static final String GET_ACTUATORSTATE_ID = "SELECT state_ID FROM ActuatorSate where actuator_ID =?;";
     public static final String GET_REPORT_ID = "SELECT report_ID FROM report WHERE _timestamp::date=? ;";//order by report_ID desc limit 1 (in case the last one is requested put this at the end)
 
-    /*dw*/
+    public static final String GET_REPORT_FOR_DATE = "SELECT avg_co2,avg_humidity,avg_temperature,_timestamp " +
+            "FROM report WHERE _timestamp::date= ?;";
+
     public static final String GET_SENSOR_FROM_DW = "SELECT  sensorName,unitName,measurement_fact_dw.value,date_dim_dw.calendardate ,time_dim_dw.time_format " +
             "FROM sensor_dim_dw JOIN measurement_fact_dw " +
             "ON sensor_dim_dw.S_ID = measurement_fact_dw.S_ID " +
@@ -34,14 +36,13 @@ public class DatabaseQueries {
 
     //incremental load to DW
     public static final String INSERT_INTO_MEASURE_FACT_STAGE = "INSERT INTO temp_measure_fact( room_id, sensor_id, \"_value\",_timestamp)" +
-            "   SELECT room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp " +
-            "FROM  room join roomhasmeasurement " +
-            "  on room.room_id = roomhasmeasurement.room_id join measurement " +
-            "        on roomhasmeasurement.measurement_id = measurement.measurement_id " +
-            "    join sensormeasurement on measurement.measurement_id = sensormeasurement.measurement_id" +
-            " join sensor on sensormeasurement.sensor_id = sensor.sensor_id " +
+            "  SELECT room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp" +
+            "  FROM  room join roomhasmeasurement" +
+            "  on room.room_id = roomhasmeasurement.room_id  join measurement" +
+            "  on roomhasmeasurement.measurement_id = measurement.measurement_id" +
+            "  join sensormeasurement on measurement.measurement_id = sensormeasurement.measurement_id" +
+            "   join sensor on sensormeasurement.sensor_id = sensor.sensor_id" +
             "   where measurement.timestamp >(SELECT last_updated_dw.lastUpdate FROM last_updated_dw);";
-
     // stage dimension
     public static final String INSERT_INTO_SENSOR_DIM_STAGE = "INSERT INTO sensor_dim_stage(sensor_ID,sensorName,unitName)" +
             "SELECT sensor.sensor_ID,sensortype.sensorName,unit.unitName " +
@@ -53,11 +54,11 @@ public class DatabaseQueries {
 
     //POPULATE THE DATA WAREHOUSE WITH CHANGES ///check the queries to get date from lastupdated table
     public static final String INSERT_INTO_SENSOR_DIM_DW = "INSERT INTO sensor_dim_dw(sensor_id, sensorname,unitname,validFrom, validTo)" +
-            "  SELECT sensor_dim_stage.sensor_id,sensor_dim_stage.sensorname,sensor_dim_stage.unitname, last_updated_dw.lastUpdate,'9999-12-31'" +
-            "    FROM sensor_dim_stage, last_updated_dw;";
+            " SELECT  sensor_dim_stage.sensor_id,sensor_dim_stage.sensorname,sensor_dim_stage.unitname, last_updated_dw.lastUpdate,'9999-12-31'" +
+            "   FROM last_updated_dw,sensor_dim_stage where sensor_id in ((select sensor_id from sensor)except (select sensor_id from sensor_dim_dw )) ;";
     public static final String INSERT_INTO_ROOM_DIM_DW = "INSERT INTO room_dim_dw (room_id, roomtype,validFrom,validTo)" +
-            "  SELECT room_dim_stage.room_id, room_dim_stage.roomtype,last_updated_dw.lastUpdate ,'9999-12-31'" +
-            "    FROM room_dim_stage,last_updated_dw;";
+            "  SELECT  room_dim_stage.room_id, room_dim_stage.roomtype,last_updated_dw.lastUpdate ,'9999-12-31'" +
+            "    FROM last_updated_dw,room_dim_stage where room_id in((select room_id from room)except (select room_id from room_dim_dw));";
     //KEY LOOK-UP
     public static final String R_ID_LOOKUP = "UPDATE temp_measure_fact" +
             " SET R_ID=( SELECT R_ID FROM room_dim_dw r WHERE r.room_ID = temp_measure_fact.room_id and validTo='9999-12-31' order by r_id limit 1);";

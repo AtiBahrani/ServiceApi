@@ -16,9 +16,9 @@ public interface DatabaseAdaptor {
 
     List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException;
 
-    //List<Report> getReport() throws SQLException;
+    List<Report> getReport(String timestamp) throws SQLException;
+
     List<EmDefaultValue> getDefaultValueEm() throws SQLException; //replace the name and type of the method with the code you have
 
-    /*void addRoom(Room room);
-    void addProfile(Profile profile);*/
+
 }
