@@ -14,15 +14,15 @@ import java.util.List;
 
 public class DatabasePersistence implements DatabaseAdaptor {
     private MyDatabase db;
-    //private static final String DRIVER = "org.postgresql.Driver";
-    //private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
-    //private static final String USER = "lwavwwgi";
-    //private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
+//    private static final String DRIVER = "org.postgresql.Driver";
+//    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
+//    private static final String USER = "lwavwwgi";
+//    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
+
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
     private static final String PASSWORD = "1193";
-
     public DatabasePersistence() {
         try {
             this.db = new MyDatabase(DRIVER, URL, USER, PASSWORD);
@@ -32,6 +32,9 @@ public class DatabasePersistence implements DatabaseAdaptor {
             System.out.println("connection error");
         }
     }
+
+
+
 
     /**
      * This method is passing the relevant data for sensor and insert into the
@@ -58,7 +61,8 @@ public class DatabasePersistence implements DatabaseAdaptor {
         ArrayList<Object[]> senID = db.query(DatabaseQueries.GET_SENSOR_ID, data.getSensorName());
         sensor_ID = Integer.parseInt(senID.get(0)[0].toString());
         //query to get measurementId to put in SensorMeasurement
-        ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID, data.getValue(), new Timestamp(data.getTimestamp()));
+        ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID,
+                data.getValue(), new Timestamp(data.getTimestamp()));
         mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
         db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT, 1, mID);
         db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);

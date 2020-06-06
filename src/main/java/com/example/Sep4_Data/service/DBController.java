@@ -39,6 +39,12 @@ public class DBController {
         return db.getDefaultValueEm();
     }
 
+    @GetMapping("/getReport")
+    public List<Report> getReport(String timestamp) throws SQLException {
+        System.out.println("Data sent to client.");
+        return db.getReport(timestamp);
+    }
+
     @PostMapping("/sensor")
     public void sendData(@RequestBody String data) throws SQLException {
         ObjectMapper mapper = new ObjectMapper();
@@ -56,4 +62,5 @@ public class DBController {
     public void addReport(@RequestBody Report report) throws SQLException {
         db.addReport(report);
     }
+
 }

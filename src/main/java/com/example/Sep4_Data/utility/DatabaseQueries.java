@@ -6,7 +6,8 @@ public class DatabaseQueries {
     public static final String INSERT_INTO_MEASUREMENT = "INSERT INTO Measurement(value,timestamp) VALUES (?,?);";
     public static final String INSERT_INTO_UNIT = "INSERT INTO Unit(unitName) VALUES (?);";
     public static final String INSERT_INTO_SENSOR = "INSERT INTO Sensor(sensorType_ID )VALUES (?);";
-    public static final String INSERT_INTO_SENSORMEASUREMENT = "INSERT INTO SensorMeasurement(measurement_ID ,sensor_ID)VALUES (?,?);";
+    public static final String INSERT_INTO_SENSORMEASUREMENT = "INSERT INTO SensorMeasurement(measurement_ID ,sensor_ID)" +
+            "VALUES (?,?);";
     public static final String INSERT_INTO_SENSORUNIT = "INSERT INTO SensorUnit(sensor_ID,unit_ID )VALUES (?,?);";
     public static final String INSERT_INTO_ROOM = "INSERT INTO Room (roomType) VALUES (?);";
     public static final String INSERT_INTO_ROOMHASMEASUREMENT = "INSERT INTO RoomHasMeasurement (room_ID,measurement_ID) VALUES(?,?);";
