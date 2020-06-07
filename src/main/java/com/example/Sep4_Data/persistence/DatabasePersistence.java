@@ -22,7 +22,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "1193";
+    private static final String PASSWORD = "machintosh";
     public DatabasePersistence() {
         try {
             this.db = new MyDatabase(DRIVER, URL, USER, PASSWORD);
@@ -63,7 +63,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //query to get measurementId to put in SensorMeasurement
         ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID,
                 data.getValue(), new Timestamp(data.getTimestamp()));
-        mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
+        mID = Integer.parseInt(mIds.get(mIds.size()-1)[0].toString());
         db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT, 1, mID);
         db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
         // get unit_ID
@@ -103,8 +103,8 @@ public class DatabasePersistence implements DatabaseAdaptor {
      * @throws SQLException
      */
     @Override
-    public List<SensorWithSDate> getData() throws SQLException {
-        List<SensorWithSDate> list = new ArrayList<>();
+    public List<Parameter> getData() throws SQLException {
+        List<Parameter> list = new ArrayList<>();
         //select query
         ArrayList<Object[]> dataList = db.query(DatabaseQueries.GET_SENSOR_FROM_DW);
 
@@ -115,18 +115,30 @@ public class DatabasePersistence implements DatabaseAdaptor {
             double value = Double.parseDouble(str);
             String ts = (array[3]) + " " + (array[4]);
             Timestamp timestamp = Timestamp.valueOf(ts);
-            String datetime = timestamp.getDay() + "-" + timestamp.getMonth() + "-" + timestamp.getYear() + " " + timestamp.getHours() + ":" + timestamp.getMinutes();
+            // String datetime = timestamp.getDay() + "-" + timestamp.getMonth() + "-" + timestamp.getYear() + " " + timestamp.getHours() + ":" + timestamp.getMinutes();
+            String datetime= timestamp.toLocalDateTime().getDayOfMonth()+"-"+timestamp.getMonth()+"-"+
+                    timestamp.toLocalDateTime().getYear()+" "+ timestamp.toLocalDateTime().getHour()+":"+timestamp.toLocalDateTime().getMinute();
             //create the sensor object
-            SensorWithSDate sensorInfo = new SensorWithSDate(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
+            Parameter sensorInfo = new Parameter(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
             list.add(sensorInfo);
         }
         return list;
     }
 
     @Override
-    public List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException {
-        List<SensorWithSDate> all = new ArrayList<>(getData());
-        List<SensorWithSDate> filtered = new ArrayList<>();
+    public List<Parameter> getLastParam() throws SQLException {
+        List<Parameter> all = new ArrayList<>(getData());
+        List<Parameter> last= new ArrayList<>();
+        for (int i = all.size()-3; i< all.size();i++){
+            last.add(all.get(i));
+        }
+        return last;
+    }
+
+    @Override
+    public List<Parameter> getDataFromTo(String from, String to) throws SQLException, ParseException {
+        List<Parameter> all = new ArrayList<>(getData());
+        List<Parameter> filtered = new ArrayList<>();
         Date datefrom = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(from);
         Date dateto = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(to);
 
@@ -223,4 +235,22 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_ROOM_DIM_STAGE);
     }
+    public void updateDW() throws SQLException {
+        db.update(DatabaseQueries.INSERT_INTO_MEASURE_FACT_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_STAGE);
+        db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_DW);
+        db.update(DatabaseQueries.INSERT_INTO_ROOM_DIM_DW);
+        db.update(DatabaseQueries.R_ID_LOOKUP);
+        db.update(DatabaseQueries.S_ID_LOOKUP);
+        db.update(DatabaseQueries.D_ID_LOOKUP);
+        db.update(DatabaseQueries.T_ID_LOOKUP);
+        db.update(DatabaseQueries.INSERT_INTO_MEASUREMENT_FACT_DW);
+        db.update(DatabaseQueries.LAST_UPDATE, new Timestamp(System.currentTimeMillis()));
+        db.update(DatabaseQueries.DELETE_FROM_TEMP_FACT);
+        db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
+        db.update(DatabaseQueries.DELETE_FROM_ROOM_DIM_STAGE);
+    }
+
+
 }

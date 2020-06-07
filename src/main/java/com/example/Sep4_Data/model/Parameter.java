@@ -3,14 +3,14 @@ package com.example.Sep4_Data.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SensorWithSDate {
+public class Parameter {
     private String sensorName;
     private String unitType;
     private double value;
     private String timestamp;
 
     @JsonCreator
-    public SensorWithSDate(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") String timestamp) {
+    public Parameter(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") String timestamp) {
         this.sensorName = sensorName;
         this.unitType = unitType;
         this.value = value;

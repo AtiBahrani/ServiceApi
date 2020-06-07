@@ -20,21 +20,27 @@ public class DatabasePersistenceTest {
 
 
     @Test
-    public void addDataTest() throws SQLException {
-        Timestamp ts = new Timestamp(System.currentTimeMillis());
-        long time = (long) ts.getTime();
-        // Sensor sensor = new Sensor("co2", "ppm", 3305, time);
-        // Sensor sensor1 = new Sensor("temperature", "celsius", 45.5, time);
-        Sensor sensor2 = new Sensor("humidity", "percent", 68, time);
+    public void addDataTest() throws SQLException, InterruptedException {
+        long milis = System.currentTimeMillis() - 86400000;
+        long name = 0;
+        for (int i = 0; i < 288; i++) {
+            Timestamp ts = new Timestamp(milis + name);
+            Sensor sensor = new Sensor("CO2", "ppm", 120, ts.getTime());
+            db.addSensorData(sensor);
+            Thread.sleep(1000);
+            Sensor sensor1 = new Sensor("temperature", "celsius", 53.5, ts.getTime());
+            db.addSensorData(sensor1);
+            Thread.sleep(1000);
+            Sensor sensor2 = new Sensor("humidity", "percent", 58.8, ts.getTime());
+            db.addSensorData(sensor2);
+            Thread.sleep(1000);
+            name+=300000;
+        }
+    }
 
-        db.addSensorData(sensor2);
-        System.out.println("1 ");
-        // db.addSensorData(sensor1);
-        //  System.out.println("2");
-
-        // db.addSensorData(sensor2);
-        //System.out.println("3");
-
+    @Test
+    public void updateDW() throws SQLException {
+        db.updateDW();
     }
 
     @Test

@@ -12,13 +12,13 @@ public interface DatabaseAdaptor {
 
     void addReport(Report report) throws SQLException;
 
-    List<SensorWithSDate> getData() throws SQLException;
+    List<Parameter> getData() throws SQLException;
 
-    List<SensorWithSDate> getDataFromTo(String from, String to) throws SQLException, ParseException;
+    List<Parameter> getDataFromTo(String from, String to) throws SQLException, ParseException;
 
     List<Report> getReport(String timestamp) throws SQLException;
 
     List<EmDefaultValue> getDefaultValueEm() throws SQLException; //replace the name and type of the method with the code you have
 
-
+    public List<Parameter> getLastParam() throws SQLException;
 }

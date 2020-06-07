@@ -3,7 +3,7 @@ package com.example.Sep4_Data.service;
 import com.example.Sep4_Data.model.EmDefaultValue;
 import com.example.Sep4_Data.model.Report;
 import com.example.Sep4_Data.model.Sensor;
-import com.example.Sep4_Data.model.SensorWithSDate;
+import com.example.Sep4_Data.model.Parameter;
 import com.example.Sep4_Data.persistence.DatabaseAdaptor;
 import com.example.Sep4_Data.persistence.DatabasePersistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,13 +22,13 @@ public class DBController {
     DatabaseAdaptor db = new DatabasePersistence();
 
     @GetMapping("/parameters")
-    public List<SensorWithSDate> getSensorInfo() throws SQLException {
-        System.out.println("Data sent to client.");
-        return db.getData();
+        public List<Parameter> getSensorInfo() throws SQLException {
+            System.out.println("Data sent to client.");
+            return db.getLastParam();
     }
 
     @GetMapping("/parametersFiltered")
-    public List<SensorWithSDate> getFilteredDateSensorInfo(String timestampFrom, String timestampTo) throws SQLException, ParseException {
+    public List<Parameter> getFilteredDateSensorInfo(String timestampFrom, String timestampTo) throws SQLException, ParseException {
         System.out.println("Data sent to client.");
         return db.getDataFromTo(timestampFrom, timestampTo);
     }

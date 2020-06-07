@@ -29,7 +29,8 @@ public class DatabaseQueries {
     public static final String GET_REPORT_FOR_DATE = "SELECT avg_co2,avg_humidity,avg_temperature,_timestamp " +
             "FROM report WHERE _timestamp::date= ?;";
 
-    public static final String GET_SENSOR_FROM_DW = "SELECT  sensorName,unitName,measurement_fact_dw.value,date_dim_dw.calendardate ,time_dim_dw.time_format " +
+    public static final String GET_SENSOR_FROM_DW = "SELECT  sensorName,unitName" +
+            ",measurement_fact_dw.value,date_dim_dw.calendardate ,time_dim_dw.time_format " +
             "FROM sensor_dim_dw JOIN measurement_fact_dw " +
             "ON sensor_dim_dw.S_ID = measurement_fact_dw.S_ID " +
             "JOIN date_dim_dw ON  date_dim_dw.D_ID = measurement_fact_dw.D_ID " +
@@ -37,7 +38,7 @@ public class DatabaseQueries {
 
     //incremental load to DW
     public static final String INSERT_INTO_MEASURE_FACT_STAGE = "INSERT INTO temp_measure_fact( room_id, sensor_id, \"_value\",_timestamp)" +
-            "  SELECT room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp" +
+            "  SELECT distinct room.room_ID, sensor.sensor_ID, measurement.value, measurement.timestamp" +
             "  FROM  room join roomhasmeasurement" +
             "  on room.room_id = roomhasmeasurement.room_id  join measurement" +
             "  on roomhasmeasurement.measurement_id = measurement.measurement_id" +
