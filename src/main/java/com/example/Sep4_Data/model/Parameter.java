@@ -3,14 +3,14 @@ package com.example.Sep4_Data.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Sensor {
+public class Parameter {
     private String sensorName;
     private String unitType;
     private double value;
-    private long timestamp;
+    private String timestamp;
 
     @JsonCreator
-    public Sensor(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") long timestamp) {
+    public Parameter(@JsonProperty("sensorName") String sensorName, @JsonProperty("unitType") String unitType, @JsonProperty("value") double value, @JsonProperty("timestamp") String timestamp) {
         this.sensorName = sensorName;
         this.unitType = unitType;
         this.value = value;
@@ -41,11 +41,11 @@ public class Sensor {
         this.value = value;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -54,8 +54,8 @@ public class Sensor {
         return "Sensor{" +
                 "sensorName='" + sensorName + '\'' +
                 ", unitType='" + unitType + '\'' +
-                ", value=" + value +
-                ", timestamp=" + timestamp +
+                ", value= " + value +
+                ", timestamp= " + timestamp +
                 '}';
     }
 }

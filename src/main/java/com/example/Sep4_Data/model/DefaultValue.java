@@ -5,27 +5,32 @@ import java.sql.Timestamp;
 public class DefaultValue {
     private Timestamp timestamp;
     private String state;
-    private boolean log;
+   // private boolean log;
     private String parameterType;
-    private double parameterValue;
+    private double co2;
+    private double humidity;
+    private double temperature;
 
-    public DefaultValue(Timestamp timestamp, String state, boolean log, String parameterType, double parameterValue) {
+    public DefaultValue(Timestamp timestamp, String state,  String parameterType, double co2,double humidity, double temperature) {
         this.timestamp = timestamp;
         this.state = state;
-        this.log = log;
+
         this.parameterType = parameterType;
-        this.parameterValue = parameterValue;
+        this.co2 = co2;
+        this.humidity=humidity;
+        this.temperature=temperature;
     }
 
     public DefaultValue() {
     }
 
-    public DefaultValue(String state, boolean log, String parameterType, double parameterValue) {
+    public DefaultValue(String state, String parameterType, double co2,double humidity, double temperature) {
        timestamp= new Timestamp(System.currentTimeMillis());
         this.state = state;
-        this.log = log;
         this.parameterType = parameterType;
-        this.parameterValue = parameterValue;
+        this.co2 = co2;
+        this.humidity=humidity;
+        this.temperature=temperature;
     }
 
     public Timestamp getTimestamp() {
@@ -44,13 +49,8 @@ public class DefaultValue {
         this.state = state;
     }
 
-    public boolean isLog() {
-        return log;
-    }
 
-    public void setLog(boolean log) {
-        this.log = log;
-    }
+
 
     public String getParameterType() {
         return parameterType;
@@ -60,12 +60,29 @@ public class DefaultValue {
         this.parameterType = parameterType;
     }
 
-    public double getParameterValue() {
-        return parameterValue;
+
+    public double getCo2() {
+        return co2;
     }
 
-    public void setParameterValue(double parameterValue) {
-        this.parameterValue = parameterValue;
+    public void setCo2(double co2) {
+        this.co2 = co2;
+    }
+
+    public double getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(double humidity) {
+        this.humidity = humidity;
+    }
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
     }
 
     @Override
@@ -73,9 +90,10 @@ public class DefaultValue {
         return "DefaultValue{" +
                 "timestamp=" + timestamp +
                 ", state='" + state + '\'' +
-                ", log=" + log +
                 ", parameterType='" + parameterType + '\'' +
-                ", parameterValue=" + parameterValue +
+                ", co2=" + co2 +
+                ", humidity=" + humidity +
+                ", temperature=" + temperature +
                 '}';
     }
 }
