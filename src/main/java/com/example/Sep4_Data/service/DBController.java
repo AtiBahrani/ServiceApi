@@ -8,10 +8,7 @@ import com.example.Sep4_Data.persistence.DatabaseAdaptor;
 import com.example.Sep4_Data.persistence.DatabasePersistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -27,10 +24,11 @@ public class DBController {
             return db.getLastParam();
     }
 
-    @GetMapping("/parametersFiltered")
-    public List<Parameter> getFilteredDateSensorInfo(String timestampFrom, String timestampTo) throws SQLException, ParseException {
+    @GetMapping("/parametersFiltered") //
+    @ResponseBody
+    public List<Parameter> getFilteredDateSensorInfo(@RequestParam String timestampFrom, @RequestParam String timestampTo) throws SQLException, ParseException {
         System.out.println("Data sent to client.");
-        return db.getDataFromTo(timestampFrom, timestampTo);
+        return db.getDataFromTo(timestampFrom,timestampTo);
     }
 
     @GetMapping("/defaultValue")

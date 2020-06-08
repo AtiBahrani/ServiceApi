@@ -14,11 +14,6 @@ import java.util.List;
 
 public class DatabasePersistence implements DatabaseAdaptor {
     private MyDatabase db;
-//    private static final String DRIVER = "org.postgresql.Driver";
-//    private static final String URL = "jdbc:postgresql://balarama.db.elephantsql.com:5432/lwavwwgi";
-//    private static final String USER = "lwavwwgi";
-//    private static final String PASSWORD = "B1jwM3F8_fo289D9wXPxNHLEgVDYXZxr";
-
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
@@ -32,9 +27,6 @@ public class DatabasePersistence implements DatabaseAdaptor {
             System.out.println("connection error");
         }
     }
-
-
-
 
     /**
      * This method is passing the relevant data for sensor and insert into the
@@ -115,9 +107,18 @@ public class DatabasePersistence implements DatabaseAdaptor {
             double value = Double.parseDouble(str);
             String ts = (array[3]) + " " + (array[4]);
             Timestamp timestamp = Timestamp.valueOf(ts);
-            // String datetime = timestamp.getDay() + "-" + timestamp.getMonth() + "-" + timestamp.getYear() + " " + timestamp.getHours() + ":" + timestamp.getMinutes();
-            String datetime= timestamp.toLocalDateTime().getDayOfMonth()+"-"+timestamp.getMonth()+"-"+
-                    timestamp.toLocalDateTime().getYear()+" "+ timestamp.toLocalDateTime().getHour()+":"+timestamp.toLocalDateTime().getMinute();
+            String hour="";
+            if(timestamp.getHours()<10)
+                hour="0"+timestamp.getHours();
+            else
+                hour = ""+timestamp.getHours(); 
+            String minute="";
+            if(timestamp.getMinutes()<10)
+                minute="0"+timestamp.getMinutes();
+            else
+                minute = ""+timestamp.getMinutes();
+            String datetime= "0"+timestamp.toLocalDateTime().getDayOfMonth()+"-0"+(timestamp.getMonth()+1)+"-"+
+                    timestamp.toLocalDateTime().getYear()+" "+ hour+":"+minute;
             //create the sensor object
             Parameter sensorInfo = new Parameter(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
             list.add(sensorInfo);
@@ -144,7 +145,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
 
         for (int i = 0; i < all.size(); i++) {
             Date date = new SimpleDateFormat("dd-MM-yyyy hh:mm").parse(all.get(i).getTimestamp());
-            if (date.before(dateto) && date.after(datefrom)) {
+            if (date.before(dateto) || date.after(datefrom)) {
                 filtered.add(all.get(i));
             }
         }
@@ -251,6 +252,4 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_ROOM_DIM_STAGE);
     }
-
-
 }
