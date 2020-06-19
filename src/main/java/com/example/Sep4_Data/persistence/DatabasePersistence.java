@@ -17,7 +17,8 @@ public class DatabasePersistence implements DatabaseAdaptor {
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "machintosh";
+    private static final String PASSWORD = "1193";
+
     public DatabasePersistence() {
         try {
             this.db = new MyDatabase(DRIVER, URL, USER, PASSWORD);
@@ -51,16 +52,17 @@ public class DatabasePersistence implements DatabaseAdaptor {
         //get sensorId
         int sensor_ID = 0;
         ArrayList<Object[]> senID = db.query(DatabaseQueries.GET_SENSOR_ID, data.getSensorName());
-        sensor_ID = Integer.parseInt(senID.get(0)[0].toString());
+        sensor_ID = Integer.parseInt(senID.get(senID.size() - 1)[0].toString());
         //query to get measurementId to put in SensorMeasurement
         ArrayList<Object[]> mIds = db.query(DatabaseQueries.GET_MEASUREMENT_ID,
                 data.getValue(), new Timestamp(data.getTimestamp()));
-        mID = Integer.parseInt(mIds.get(mIds.size()-1)[0].toString());
-        db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT, 1, mID);
-        db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
+        mID = Integer.parseInt(mIds.get(mIds.size() - 1)[0].toString());
         // get unit_ID
         ArrayList<Object[]> uIds = db.query(DatabaseQueries.GET_UNIT_ID, data.getUnitType());
         uID = Integer.parseInt(uIds.get(uIds.size() - 1)[0].toString());
+
+        db.update(DatabaseQueries.INSERT_INTO_ROOMHASMEASUREMENT, 1, mID);
+        db.update(DatabaseQueries.INSERT_INTO_SENSORMEASUREMENT, mID, sensor_ID);
         db.update(DatabaseQueries.INSERT_INTO_SENSORUNIT, sensor_ID, uID);
         //update the data warehouse after each update
         updateDW(data);
@@ -107,18 +109,18 @@ public class DatabasePersistence implements DatabaseAdaptor {
             double value = Double.parseDouble(str);
             String ts = (array[3]) + " " + (array[4]);
             Timestamp timestamp = Timestamp.valueOf(ts);
-            String hour="";
-            if(timestamp.getHours()<10)
-                hour="0"+timestamp.getHours();
+            String hour = "";
+            if (timestamp.getHours() < 10)
+                hour = "0" + timestamp.getHours();
             else
-                hour = ""+timestamp.getHours(); 
-            String minute="";
-            if(timestamp.getMinutes()<10)
-                minute="0"+timestamp.getMinutes();
+                hour = "" + timestamp.getHours();
+            String minute = "";
+            if (timestamp.getMinutes() < 10)
+                minute = "0" + timestamp.getMinutes();
             else
-                minute = ""+timestamp.getMinutes();
-            String datetime= "0"+timestamp.toLocalDateTime().getDayOfMonth()+"-0"+(timestamp.getMonth()+1)+"-"+
-                    timestamp.toLocalDateTime().getYear()+" "+ hour+":"+minute;
+                minute = "" + timestamp.getMinutes();
+            String datetime = "0" + timestamp.toLocalDateTime().getDayOfMonth() + "-0" + (timestamp.getMonth() + 1) + "-" +
+                    timestamp.toLocalDateTime().getYear() + " " + hour + ":" + minute;
             //create the sensor object
             Parameter sensorInfo = new Parameter(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);
             list.add(sensorInfo);
@@ -129,8 +131,8 @@ public class DatabasePersistence implements DatabaseAdaptor {
     @Override
     public List<Parameter> getLastParam() throws SQLException {
         List<Parameter> all = new ArrayList<>(getData());
-        List<Parameter> last= new ArrayList<>();
-        for (int i = all.size()-3; i< all.size();i++){
+        List<Parameter> last = new ArrayList<>();
+        for (int i = all.size() - 3; i < all.size(); i++) {
             last.add(all.get(i));
         }
         return last;
@@ -236,6 +238,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
         db.update(DatabaseQueries.DELETE_FROM_SENSOR_DIM_STAGE);
         db.update(DatabaseQueries.DELETE_FROM_ROOM_DIM_STAGE);
     }
+
     public void updateDW() throws SQLException {
         db.update(DatabaseQueries.INSERT_INTO_MEASURE_FACT_STAGE);
         db.update(DatabaseQueries.INSERT_INTO_SENSOR_DIM_STAGE);

@@ -25,19 +25,28 @@ public class DatabasePersistenceTest {
         long name = 0;
         for (int i = 0; i < 288; i++) {
             Timestamp ts = new Timestamp(milis + name);
-            Sensor sensor = new Sensor("CO2", "ppm", 120, ts.getTime());
+            Sensor sensor = new Sensor("CO2", "ppm", 1360, ts.getTime());
             db.addSensorData(sensor);
             Thread.sleep(1000);
-            Sensor sensor1 = new Sensor("temperature", "celsius", 53.5, ts.getTime());
+            Sensor sensor1 = new Sensor("temperature", "celsius", 45.6, ts.getTime());
             db.addSensorData(sensor1);
             Thread.sleep(1000);
-            Sensor sensor2 = new Sensor("humidity", "percent", 58.8, ts.getTime());
+            Sensor sensor2 = new Sensor("humidity", "percent", 62.7, ts.getTime());
             db.addSensorData(sensor2);
             Thread.sleep(1000);
             name+=300000;
         }
     }
 
+    @Test
+    public void TestInsertDB()throws SQLException{
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        Sensor sensor = new Sensor("CO2", "ppm", 1120, ts.getTime());
+        Sensor sensor1 = new Sensor("temperature", "celsius", 52, ts.getTime());
+        Sensor sensor2 = new Sensor("humidity", "percent", 59.3, ts.getTime());
+
+        db.addSensorData(sensor2);
+    }
     @Test
     public void updateDW() throws SQLException {
         db.updateDW();
