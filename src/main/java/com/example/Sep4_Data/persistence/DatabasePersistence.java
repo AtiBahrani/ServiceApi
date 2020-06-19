@@ -17,7 +17,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "1193";
+    private static final String PASSWORD = "machintosh";
 
     public DatabasePersistence() {
         try {
@@ -119,7 +119,7 @@ public class DatabasePersistence implements DatabaseAdaptor {
                 minute = "0" + timestamp.getMinutes();
             else
                 minute = "" + timestamp.getMinutes();
-            String datetime = "0" + timestamp.toLocalDateTime().getDayOfMonth() + "-0" + (timestamp.getMonth() + 1) + "-" +
+            String datetime = timestamp.toLocalDateTime().getDayOfMonth() + "-0" + (timestamp.getMonth() + 1) + "-" +
                     timestamp.toLocalDateTime().getYear() + " " + hour + ":" + minute;
             //create the sensor object
             Parameter sensorInfo = new Parameter(String.valueOf(array[0]), String.valueOf(array[1]), value, datetime);

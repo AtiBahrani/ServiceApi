@@ -27,13 +27,13 @@ public class DatabasePersistenceTest {
             Timestamp ts = new Timestamp(milis + name);
             Sensor sensor = new Sensor("CO2", "ppm", 1360, ts.getTime());
             db.addSensorData(sensor);
-            Thread.sleep(1000);
+            Thread.sleep(500);
             Sensor sensor1 = new Sensor("temperature", "celsius", 45.6, ts.getTime());
             db.addSensorData(sensor1);
-            Thread.sleep(1000);
+            Thread.sleep(500);
             Sensor sensor2 = new Sensor("humidity", "percent", 62.7, ts.getTime());
             db.addSensorData(sensor2);
-            Thread.sleep(1000);
+            Thread.sleep(500);
             name+=300000;
         }
     }
